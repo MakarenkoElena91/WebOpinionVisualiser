@@ -1,6 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="war" name="wcloud">
-    <output-path>$PROJECT_DIR$/out/artifacts/wcloud</output-path>
-    <root id="archive" name="wcloud.war" />
-  </artifact>
-</component>
