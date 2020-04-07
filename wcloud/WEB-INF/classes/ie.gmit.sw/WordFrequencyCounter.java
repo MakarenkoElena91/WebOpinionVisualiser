@@ -71,7 +71,6 @@ public class WordFrequencyCounter {
             wordCounts[i] = wordCountArrayList.get(i);
             System.out.println(wordCounts[i] + " ");
         }
-
         return wordCounts;
     }
 }

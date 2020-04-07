@@ -12,8 +12,7 @@ public class IgnoreWordsParser {
         TreeSet<String> ignorewords = new TreeSet<>();
         try {
             ignorewords = new TreeSet<>();
-            File dir = new File(
-                    "resources/ignorewords.txt");
+            File dir = new File("ignorewords.txt");
 
             BufferedReader br = new BufferedReader(new InputStreamReader(
                     new FileInputStream(dir)));

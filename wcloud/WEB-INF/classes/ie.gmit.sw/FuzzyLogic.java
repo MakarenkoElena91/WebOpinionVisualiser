@@ -15,7 +15,7 @@ public class FuzzyLogic {
         fis.evaluate();
         return (int) fis.getVariable("score").defuzzify();
     }
-//    public static void main(String[] args) {
-//        System.out.println("Fuzzy score is: " + new FuzzyLogic().getScore(100,60, 68));
-//    }
+    public static void main(String[] args) {
+        System.out.println("Fuzzy score is: " + new FuzzyLogic().getScore(100,60, 500));
+    }
 }

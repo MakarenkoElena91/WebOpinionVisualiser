@@ -16,7 +16,6 @@ public class NodeParser implements Runnable {
     private static final int TITLE_WEIGHT = 50;//<title>
     private static final int HEADING_WEIGHT = 20;//h1
     private static final int PARAGRAPH_WEIGHT = 1;//body
-    private static WordFrequency[] wordCounts = new WordFrequency[MAX_LIMIT];
 
     private String searchTerm;
     private String url;
@@ -79,7 +78,7 @@ public class NodeParser implements Runnable {
         int score = 0;
         String title = doc.title();
         int titleScore = getFrequency(title, searchTerm) * TITLE_WEIGHT;
-//        System.out.println("Title: " + " " + titleScore);
+        System.out.println("Title: " + " " + titleScore);
 
         int headingScore = 0;
         Elements headings = doc.select("h1");
@@ -88,18 +87,17 @@ public class NodeParser implements Runnable {
             h1 = heading.text();
             headingScore += getFrequency(h1, searchTerm) * HEADING_WEIGHT;
         }
-//        System.out.println("Heading: " + " " + headingScore);
+        System.out.println("Heading: " + " " + headingScore);
         int bodyScore = 0;
         String body = doc.body().text();
         bodyScore += getFrequency(body, searchTerm) * PARAGRAPH_WEIGHT;
-//        System.out.println("Text: " + " " + bodyScore);
+        System.out.println("Text: " + " " + bodyScore);
 
         score = FuzzyLogic.getScore(titleScore, headingScore, bodyScore);
-//        System.out.println("Score " + score);
+        System.out.println("Score " + score);
 
-        if (score > 90) {
+        if (score > 60) {
             index(title, h1, body);
-
         }
         return score;
     }
@@ -109,13 +107,13 @@ public class NodeParser implements Runnable {
         return (int) Arrays.stream(s.split("[ ,\\.]")).filter(e -> e.equals(target)).count();
     }
 
-    private void index(String... text) throws IOException {
+    private WordFrequency[] index(String... text) throws IOException {
         String allTexts = "";
         for (int i = 0; i < text.length; i++) {
             allTexts = allTexts.concat(text[i]);
         }
-
         wordFrequencyCounter.getFrequencyMap(allTexts);
-        wordCounts = wordFrequencyCounter.getSortedFrequencyMap();
+        WordFrequency[] wordCounts = wordFrequencyCounter.getSortedFrequencyMap();
+        return wordCounts;
     }
 }

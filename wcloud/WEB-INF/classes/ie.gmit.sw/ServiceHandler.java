@@ -72,7 +72,8 @@ public class ServiceHandler extends HttpServlet {
 		String option = req.getParameter("cmbOptions"); //Change options to whatever you think adds value to your assignment...
 		String s = req.getParameter("query");
         Search search = new Search();
-        search.getSearchResults(s);
+        search.hardcoded(s);
+		System.out.println("!!!!!!!" +  search.hardcoded(s));
 		out.print("<html><head><title>Artificial Intelligence Assignment</title>");
 		out.print("<link rel=\"stylesheet\" href=\"includes/style.css\">");
 
@@ -82,7 +83,7 @@ public class ServiceHandler extends HttpServlet {
 
 		out.print("<p><h2>Please read the following carefully</h2>");
 		out.print("<p>The &quot;ignore words&quot; file is located at <font color=red><b>" + ignoreWordsFile.getAbsolutePath() + "</b></font> and is <b><u>" + ignoreWordsFile.length() + "</u></b> bytes in size.");
-		out.print("<p>The &quot;ignore words&quot; file is located at <font color=red><b>" + fuzzyLogicFile.getAbsolutePath() + "</b></font> and is <b><u>" + fuzzyLogicFile.length() + "</u></b> bytes in size.");
+		out.print("<p>The &quot;fuzzy logic&quot; file is located at <font color=red><b>" + fuzzyLogicFile.getAbsolutePath() + "</b></font> and is <b><u>" + fuzzyLogicFile.length() + "</u></b> bytes in size.");
 		out.print("You must place any additional files in the <b>res</b> directory and access them in the same way as the set of ignore words.");
 		out.print("<p>Place any additional JAR archives in the WEB-INF/lib directory. This will result in Tomcat adding the library of classes ");
 		out.print("to the CLASSPATH for the web application context. Please note that the JAR archives <b>jFuzzyLogic.jar</b>, <b>encog-core-3.4.jar</b> and ");
