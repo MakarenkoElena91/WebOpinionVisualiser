@@ -1,4 +1,9 @@
 # Compiled class file
+out
+.idea
+lib
+WebOpinionVisualiser.iml
+.gitignore
 *.class
 
 # Log file
