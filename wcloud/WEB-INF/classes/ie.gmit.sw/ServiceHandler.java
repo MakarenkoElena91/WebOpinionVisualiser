@@ -71,9 +71,9 @@ public class ServiceHandler extends HttpServlet {
 		//Initialise some request varuables with the submitted form info. These are local to this method and thread safe...
 		String option = req.getParameter("cmbOptions"); //Change options to whatever you think adds value to your assignment...
 		String s = req.getParameter("query");
-        Search search = new Search();
-        search.hardcoded(s);
-		System.out.println("!!!!!!!" +  search.hardcoded(s));
+//        Search search = new Search();
+//        search.hardcoded(s);
+
 		out.print("<html><head><title>Artificial Intelligence Assignment</title>");
 		out.print("<link rel=\"stylesheet\" href=\"includes/style.css\">");
 
@@ -90,10 +90,10 @@ public class ServiceHandler extends HttpServlet {
 		out.print("<b>jsoup-1.12.1.jar</b> have already been added to the project.");
 
 		out.print("<p><fieldset><legend><h3>Result</h3></legend>");
-		wordcount.getSortedFrequencyMap();
-		WordFrequency[] words = new WeightedFont().getFontSizes(wordcount.getSortedFrequencyMap());
+		//wordcount.getSortedFrequencyMap();
+		WordFrequency[] words = new WeightedFont().getFontSizes(getWordFrequencyKeyValue());
 		Arrays.sort(words, Comparator.comparing(WordFrequency::getFrequency, Comparator.reverseOrder()));
-		//Arrays.stream(words).forEach(System.out::println);
+		Arrays.stream(words).forEach(System.out::println);
 
 		//Spira Mirabilis
 		LogarithmicSpiralPlacer placer = new LogarithmicSpiralPlacer(800, 600);

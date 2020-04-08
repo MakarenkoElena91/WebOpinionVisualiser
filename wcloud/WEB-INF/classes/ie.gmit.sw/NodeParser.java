@@ -78,7 +78,7 @@ public class NodeParser implements Runnable {
         int score = 0;
         String title = doc.title();
         int titleScore = getFrequency(title, searchTerm) * TITLE_WEIGHT;
-        System.out.println("Title: " + " " + titleScore);
+        //System.out.println("Title: " + " " + titleScore);
 
         int headingScore = 0;
         Elements headings = doc.select("h1");
@@ -87,14 +87,14 @@ public class NodeParser implements Runnable {
             h1 = heading.text();
             headingScore += getFrequency(h1, searchTerm) * HEADING_WEIGHT;
         }
-        System.out.println("Heading: " + " " + headingScore);
+        //System.out.println("Heading: " + " " + headingScore);
         int bodyScore = 0;
         String body = doc.body().text();
         bodyScore += getFrequency(body, searchTerm) * PARAGRAPH_WEIGHT;
-        System.out.println("Text: " + " " + bodyScore);
+        //System.out.println("Text: " + " " + bodyScore);
 
         score = FuzzyLogic.getScore(titleScore, headingScore, bodyScore);
-        System.out.println("Score " + score);
+        //System.out.println("Score " + score);
 
         if (score > 60) {
             index(title, h1, body);

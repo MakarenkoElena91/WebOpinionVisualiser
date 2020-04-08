@@ -14,12 +14,12 @@
   <!-- A context is a variable with application wide scope-->
   <context-param>
     <param-name>IGNORE_WORDS_FILE_LOCATION</param-name>
-    <param-value>res/ignorewords.txt</param-value>
+    <param-value>wcloud/res/ignorewords.txt</param-value>
   </context-param>
 
   <context-param>
     <param-name>FUZZY_FILE_LOCATION</param-name>
-    <param-value>res/fuzzy.fcl</param-value>
+    <param-value>wcloud/res/fuzzy.fcl</param-value>
   </context-param>
 
 
