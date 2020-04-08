@@ -50,7 +50,7 @@ public class ServiceHandler extends HttpServlet {
 	private File fuzzyLogicFile;
 
 	ExecutorService searchers = Executors.newFixedThreadPool(10);
-	WordFrequencyCounter wordcount = new WordFrequencyCounter();
+	WordFrequencyCounter wordFrequencyCounter = new WordFrequencyCounter();
 
 	public void init() throws ServletException {
 		ServletContext ctx = getServletContext(); //Get a handle on the application context

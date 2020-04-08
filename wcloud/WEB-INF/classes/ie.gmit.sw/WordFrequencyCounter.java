@@ -23,10 +23,10 @@ public class WordFrequencyCounter {
         return database;
     }
 
-    public WordFrequency[]  getFrequencyMap(String text) throws IOException {
+    public WordFrequency[] getFrequencyMap(String text) throws IOException {
         Object[] wordsToIgnore = IgnoreWordsParser.getIgnoreWords().toArray(new String[0]);
         int count;
-        //Create BufferedReader so the words can be counted
+        // read text from the website
         BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(text.toLowerCase().getBytes(StandardCharsets.UTF_8))));
         String line;
 
@@ -51,10 +51,9 @@ public class WordFrequencyCounter {
             }
         }
         numberOfMaps++;
-        System.out.println(numberOfMaps);
+       //System.out.println(numberOfMaps);
         reader.close();
        // wordFrequencyMap.forEach((K, V) -> System.out.println(K + " " + V));
-        //return wordFrequencyMap;
         List<WordFrequency> wordCountArrayList = new ArrayList<>();
 
         wordFrequencyMap.entrySet().forEach(entry -> {
@@ -68,20 +67,5 @@ public class WordFrequencyCounter {
         }
         return wordCounts;
     }
-
-//    public WordFrequency[] getSortedFrequencyMap() {
-//        List<WordFrequency> wordCountArrayList = new ArrayList<>();
-//
-//        wordFrequencyMap.entrySet().forEach(entry -> {
-//            wordCountArrayList.add(new WordFrequency(entry.getKey(), entry.getValue()));
-//        });
-//        Collections.sort(wordCountArrayList);
-//
-////        for (int i = 0; i < wordCounts.length; i++) {
-////            wordCounts[i] = wordCountArrayList.get(i);
-////            System.out.println(wordCounts[i] + " ");
-////        }
-//        return wordCounts;
-//    }
 }
 

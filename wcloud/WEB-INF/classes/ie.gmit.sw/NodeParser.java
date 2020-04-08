@@ -46,7 +46,6 @@ public class NodeParser implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // System.out.println("Searched "+this.url+" links" + i);
     }
 
     public void process() {
@@ -74,10 +73,9 @@ public class NodeParser implements Runnable {
             }
         }
     }
-
     //gets the 'best' links according to heuristic score
     private int getHeuristicScore(Document doc) throws IOException {
-        int score = 0;
+        int score;
         String title = doc.title();
         int titleScore = getFrequency(title, searchTerm) * TITLE_WEIGHT;
         //System.out.println("Title: " + " " + titleScore);
@@ -111,6 +109,7 @@ public class NodeParser implements Runnable {
         for (int i = 0; i < text.length; i++) {
             allTexts = allTexts.concat(text[i]);
         }
+
         WordFrequency[] wordCounts =  wordFrequencyCounter.getFrequencyMap(allTexts);
         for (int i = 0; i < wordCounts.length; i++) {
             System.out.println("in NodeParse  "+wordCounts[i] + " ");
