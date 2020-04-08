@@ -12,11 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class WordFrequencyCounter {
     private static final int MAX_LIMIT = 10;
-    private long time = System.currentTimeMillis();
     private static Map<String, Integer> wordFrequencyMap = new ConcurrentHashMap<>();
     private static WordFrequency[] wordCounts = new WordFrequency[MAX_LIMIT];
     private static WordFrequencyCounter database = null;
-    private static ConcurrentHashMap<String, Integer> globalWordFrequencyMap = new ConcurrentHashMap<>();
     int numberOfMaps = 0;
     public static WordFrequencyCounter getInstance() {
         if (database == null) {
@@ -25,7 +23,7 @@ public class WordFrequencyCounter {
         return database;
     }
 
-    public synchronized Map<String, Integer> getFrequencyMap(String text) throws IOException {
+    public Map<String, Integer> getFrequencyMap(String text) throws IOException {
         Object[] wordsToIgnore = IgnoreWordsParser.getIgnoreWords().toArray(new String[0]);
         int count;
         //Create BufferedReader so the words can be counted
@@ -39,7 +37,7 @@ public class WordFrequencyCounter {
                     continue;
                 }
 
-                if (Arrays.asList(wordsToIgnore).contains(word.toLowerCase())) {
+                if (Arrays.asList(wordsToIgnore).contains(word.toLowerCase()) || word.length() < 4) {
                     //do nothing
                 } else {
                     if (wordFrequencyMap.containsKey(word)) {

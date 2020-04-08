@@ -12,7 +12,6 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 public class NodeParser implements Runnable {
     private static final int MAX = 10;//100
-    private static final int MAX_LIMIT = 10;
     private static final int TITLE_WEIGHT = 50;//<title>
     private static final int HEADING_WEIGHT = 20;//h1
     private static final int PARAGRAPH_WEIGHT = 1;//body
@@ -61,7 +60,6 @@ public class NodeParser implements Runnable {
                     if (link.contains(this.searchTerm)) {
                         try {
                             closed.add(link);
-//                            System.out.println("URL: " + closed);
                             Document child = Jsoup.connect(link).get();
                             int score = getHeuristicScore(child);
                             queue.offer(new DocumentNode(child, score));
