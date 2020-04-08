@@ -8,10 +8,11 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-public class NodeParser implements Runnable {
-    private static final int MAX = 10;//100
+public class NodeParser implements Callable<WordFrequency[]> {
+    private static final int MAX_LINKS_FORM_DOCUMENT = 10;//100
     private static final int TITLE_WEIGHT = 50;//<title>
     private static final int HEADING_WEIGHT = 20;//h1
     private static final int PARAGRAPH_WEIGHT = 1;//body
@@ -23,13 +24,13 @@ public class NodeParser implements Runnable {
     private Queue<DocumentNode> queue = new PriorityQueue<>(Comparator.comparing(DocumentNode::getScore));//sort this queue
     WordFrequencyCounter wordFrequencyCounter = WordFrequencyCounter.getInstance();
 
-    public NodeParser(String url, String searchTerm) {
+    public NodeParser(String url, String searchTerm ) {
         this.searchTerm = searchTerm;
         this.url = url;
     }
 
     @Override
-    public void run() {
+    public WordFrequency[] call() {
         Document doc;
         int score;
 
@@ -44,31 +45,38 @@ public class NodeParser implements Runnable {
             process();
 
         } catch (IOException e) {
+            System.err.println("JSoup didin't connect: "+ e.getMessage());
             e.printStackTrace();
         }
+
+        return wordFrequencyCounter.getFrequency();
     }
 
     public void process() {
-        while (!queue.isEmpty() && closed.size() <= MAX) {
+        while (!queue.isEmpty() && closed.size() <= MAX_LINKS_FORM_DOCUMENT) {
             DocumentNode node = queue.poll();
             Document doc = node.getDocument();
             Elements edges = doc.select("a[href]");
             for (Element e : edges) {
+                // link counter here
+                WordCloudApp.totalLinksCounter.incrementAndGet();
                 String link = e.absUrl("href");
-                if (link != null && closed.size() <= MAX && !closed.contains(link)) {
-                    if (link.contains(this.searchTerm)) {
+                if (link != null && closed.size() <= MAX_LINKS_FORM_DOCUMENT && !closed.contains(link)) {
+                    //if (link.contains(this.searchTerm)) {
                         try {
 
                             Document child = Jsoup.connect(link).get();
                             int score = getHeuristicScore(child);
                             if (score > 60) {
-                                index(child.body().text());
+                                wordFrequencyCounter.add(child.body().text());
+//                                index(child.body().text());
                                 closed.add(link);
                                 queue.offer(new DocumentNode(child, score));
                             }
-                        } catch (IOException ex) {
+                        } catch (IOException | IllegalArgumentException ex) {
+                            System.err.println("Failed to open a link: " + ex.getMessage() + " - " + link);
                         }
-                    }
+                    //}
                 }
             }
         }
@@ -81,11 +89,11 @@ public class NodeParser implements Runnable {
         //System.out.println("Title: " + " " + titleScore);
 
         int headingScore = 0;
-        Elements headings = doc.select("h1");
-        String h1 = "";
-        for (Element heading : headings) {
-            h1 = heading.text();
-            headingScore += getFrequency(h1, searchTerm) * HEADING_WEIGHT;
+        Elements headings = doc.select("h1, h2, h3");
+        String heading = "";
+        for (Element h : headings) {
+            heading = h.text();
+            headingScore += getFrequency(heading, searchTerm) * HEADING_WEIGHT;
         }
         //System.out.println("Heading: " + " " + headingScore);
         int bodyScore = 0;
@@ -104,16 +112,11 @@ public class NodeParser implements Runnable {
         return (int) Arrays.stream(s.split("[ ,\\.]")).filter(e -> e.equals(target)).count();
     }
 
-    private WordFrequency[] index(String... text) throws IOException {
-        String allTexts = "";
-        for (int i = 0; i < text.length; i++) {
-            allTexts = allTexts.concat(text[i]);
-        }
-
-        WordFrequency[] wordCounts =  wordFrequencyCounter.getFrequencyMap(allTexts);
-        for (int i = 0; i < wordCounts.length; i++) {
-            System.out.println("in NodeParse  "+wordCounts[i] + " ");
-        }
-        return wordCounts;
-    }
+//    private WordFrequency[] index(String text) throws IOException {
+//        WordFrequency[] wordCounts =  wordFrequencyCounter.getFrequencyMap();
+//        for (int i = 0; i < wordCounts.length; i++) {
+//           // System.out.println("in NodeParse  "+ wordCounts[i] + " ");
+//        }
+//        return wordCounts;
+//    }
 }

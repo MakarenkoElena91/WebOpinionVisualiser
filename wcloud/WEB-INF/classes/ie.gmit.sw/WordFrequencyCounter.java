@@ -14,46 +14,63 @@ public class WordFrequencyCounter {
     private static final int MAX_LIMIT = 10;
     private static Map<String, Integer> wordFrequencyMap = new ConcurrentHashMap<>();
     private static WordFrequency[] wordCounts = new WordFrequency[MAX_LIMIT];
-    private static WordFrequencyCounter database = null;
+    private static WordFrequencyCounter instance = new WordFrequencyCounter();
     int numberOfMaps = 0;
-    public static WordFrequencyCounter getInstance() {
-        if (database == null) {
-            database = new WordFrequencyCounter();
-        }
-        return database;
+//    private String text;
+
+    private WordFrequencyCounter() {
     }
 
-    public WordFrequency[] getFrequencyMap(String text) throws IOException {
-        Object[] wordsToIgnore = IgnoreWordsParser.getIgnoreWords().toArray(new String[0]);
-        int count;
+    public static WordFrequencyCounter getInstance(){
+        return instance;
+    }
+    public void add(String text) throws IOException {
+        String[] wordsToIgnore = IgnoreWordsParser.getIgnoreWords().toArray(new String[0]);
+        // int count;
         // read text from the website
         BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(text.toLowerCase().getBytes(StandardCharsets.UTF_8))));
         String line;
 
         while ((line = reader.readLine()) != null) {
-            String[] words = line.split("[^A-Za-z]");
+            String[] words = line.split("[^a-z]");
             for (String word : words) {
-                if ("".equals(word)) {
+                if (word.isEmpty()) {
                     continue;
                 }
 
                 if (Arrays.asList(wordsToIgnore).contains(word.toLowerCase()) || word.length() < 4) {
                     //do nothing
                 } else {
-                    if (wordFrequencyMap.containsKey(word)) {
-                        count = wordFrequencyMap.get(word);
-                        count++;
-                        wordFrequencyMap.put(word, count);
-                    } else {
-                        wordFrequencyMap.put(word, 1);
+                    synchronized (wordFrequencyMap) {
+                        if (wordFrequencyMap.containsKey(word)) {
+                            int count = wordFrequencyMap.get(word);
+                            count++;
+                            wordFrequencyMap.put(word, count);
+                        } else {
+                            wordFrequencyMap.put(word, 1);
+                        }
                     }
                 }
             }
         }
         numberOfMaps++;
-       //System.out.println(numberOfMaps);
+        System.out.println("Pages checked: "+ numberOfMaps);
         reader.close();
-       // wordFrequencyMap.forEach((K, V) -> System.out.println(K + " " + V));
+
+        // TODO: prune wordFrequencyMap
+//         var entries = wordFrequencyMap.entrySet();
+         List<Map.Entry<String, Integer>> list  = new LinkedList<>(wordFrequencyMap.entrySet());
+         Collections.sort(list, (f, s) -> s.getValue() -f.getValue());
+        //sy
+         list.stream()
+                 .skip(300)
+                 .map(Map.Entry::getKey)
+                 .forEach(wordFrequencyMap::remove);
+//        wordFrequencyMap.remove()
+    }
+
+    public WordFrequency[] getFrequency(){
+        // wordFrequencyMap.forEach((K, V) -> System.out.println(K + " " + V));
         List<WordFrequency> wordCountArrayList = new ArrayList<>();
 
         wordFrequencyMap.entrySet().forEach(entry -> {
@@ -63,7 +80,7 @@ public class WordFrequencyCounter {
 
         for (int i = 0; i < wordCounts.length; i++) {
             wordCounts[i] = wordCountArrayList.get(i);
-           // System.out.println(wordCounts[i] + " ");
+//           System.out.println(wordCounts[i] + " ");
         }
         return wordCounts;
     }

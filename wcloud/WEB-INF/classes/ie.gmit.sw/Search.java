@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 public class Search {
     private final static String DUCK_DUCK_GO_SEARCH_URL = "https://duckduckgo.com/html/?q=";
-    private final static int MAX_LIMIT = 50;
+    private final static int MAX_LIMIT = 10;
     private Set<String> links = new ConcurrentSkipListSet<>();
     Thread t;
 
@@ -41,11 +41,11 @@ public class Search {
         links.add("https://www.urbandictionary.com/define.php?term=Galway");
         links.add("https://ihworld.com/schools/countries/ireland/ih-galway/");
 
-        for (String link : links) {
-            NodeParser nodeParser = new NodeParser(link, query);
-            t = new Thread(nodeParser);
-            t.start();
-        }
+//        for (String link : links) {
+//            NodeParser nodeParser = new NodeParser(link, query);
+//            t = new Thread(nodeParser);
+//            t.start();
+       // }
         return links;
     }
 
@@ -62,9 +62,9 @@ public class Search {
                 String link = e.absUrl("href");
                 if (link != null && links.size() <= MAX_LIMIT && !links.contains(link)) {
                     links.add(link);
-                    NodeParser nodeParser = new NodeParser(link, query);
-                    t = new Thread(nodeParser);
-                    t.start();
+//                    NodeParser nodeParser = new NodeParser(link, query);
+//                    t = new Thread(nodeParser);
+//                    t.start();
                 }
             }
         } catch (IOException e) {

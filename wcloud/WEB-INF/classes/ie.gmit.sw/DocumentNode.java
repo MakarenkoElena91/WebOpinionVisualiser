@@ -3,8 +3,8 @@ package ie.gmit.sw;
 import org.jsoup.nodes.Document;
 
 public class DocumentNode {
-    private Document document;
-    private int score;
+    private final Document document;
+    private final int score;
 
     public DocumentNode(Document d, int score) {
         this.document = d;

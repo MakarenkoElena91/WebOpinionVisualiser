@@ -12,6 +12,7 @@ import javax.imageio.ImageIO;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Comparator;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -42,7 +43,7 @@ import ie.gmit.sw.ai.cloud.WordFrequency;
 */
 
 public class ServiceHandler extends HttpServlet {
-    Thread search = null;
+
 	private String ignoreWords = null;
 	private String fuzzyLogic = null;
 
@@ -50,7 +51,7 @@ public class ServiceHandler extends HttpServlet {
 	private File fuzzyLogicFile;
 
 	ExecutorService searchers = Executors.newFixedThreadPool(10);
-	WordFrequencyCounter wordFrequencyCounter = new WordFrequencyCounter();
+	WordFrequencyCounter wordFrequencyCounter =  WordFrequencyCounter.getInstance();
 
 	public void init() throws ServletException {
 		ServletContext ctx = getServletContext(); //Get a handle on the application context
@@ -71,8 +72,8 @@ public class ServiceHandler extends HttpServlet {
 		//Initialise some request varuables with the submitted form info. These are local to this method and thread safe...
 		String option = req.getParameter("cmbOptions"); //Change options to whatever you think adds value to your assignment...
 		String s = req.getParameter("query");
-//        Search search = new Search();
-//        search.hardcoded(s);
+		WordCloudApp wordCloudApp = new WordCloudApp(s);
+
 
 		out.print("<html><head><title>Artificial Intelligence Assignment</title>");
 		out.print("<link rel=\"stylesheet\" href=\"includes/style.css\">");
@@ -91,14 +92,25 @@ public class ServiceHandler extends HttpServlet {
 
 		out.print("<p><fieldset><legend><h3>Result</h3></legend>");
 		//wordcount.getSortedFrequencyMap();
-		WordFrequency[] words = new WeightedFont().getFontSizes(getWordFrequencyKeyValue());
-		Arrays.sort(words, Comparator.comparing(WordFrequency::getFrequency, Comparator.reverseOrder()));
-		Arrays.stream(words).forEach(System.out::println);
+		WordFrequency[] words = null;
+
+		try {
+			words = wordCloudApp.createWordCloud();
+		} catch (ExecutionException | InterruptedException e) {
+			e.printStackTrace();
+		}
 
 		//Spira Mirabilis
 		LogarithmicSpiralPlacer placer = new LogarithmicSpiralPlacer(800, 600);
-		for (WordFrequency word : words) {
-			placer.place(word); //Place each word on the canvas starting with the largest
+
+		if (words != null) {
+			for (WordFrequency word : words) {
+				placer.place(word); //Place each word on the canvas starting with the largest
+			}
+		}
+		else {
+			out.print("<h2>Word Cloud cannot be created for: "+ s +". </h2>");
+			// h tag say was a null
 		}
 
 		BufferedImage cloud = placer.getImage(); //Get a handle on the word cloud graphic
@@ -115,44 +127,6 @@ public class ServiceHandler extends HttpServlet {
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		doGet(req, resp);
  	}
-
-	//A sample array of WordFrequency for demonstration purposes
-	private WordFrequency[] getWordFrequencyKeyValue() {
-		WordFrequency[] wf = new WordFrequency[32];
-		wf[0] = new WordFrequency("Galway", 65476);
-		wf[1] = new WordFrequency("Sligo", 43242);
-		wf[2] = new WordFrequency("Roscommon", 2357);
-		wf[4] = new WordFrequency("Clare", 997);
-		wf[5] = new WordFrequency("Donegal", 876);
-		wf[17] = new WordFrequency("Armagh", 75);
-		wf[6] = new WordFrequency("Waterford", 811);
-		wf[7] = new WordFrequency("Tipperary", 765);
-		wf[8] = new WordFrequency("Westmeath", 643);
-		wf[9] = new WordFrequency("Leitrim", 543);
-		wf[10] = new WordFrequency("Mayo", 456);
-		wf[11] = new WordFrequency("Offaly", 321);
-		wf[12] = new WordFrequency("Kerry", 221);
-		wf[13] = new WordFrequency("Meath", 101);
-		wf[14] = new WordFrequency("Wicklow", 98);
-		wf[18] = new WordFrequency("Antrim", 67);
-		wf[3] = new WordFrequency("Limerick", 1099);
-		wf[15] = new WordFrequency("Kildare", 89);
-		wf[16] = new WordFrequency("Fermanagh", 81);
-		wf[19] = new WordFrequency("Dublin", 12);
-		wf[20] = new WordFrequency("Carlow", 342);
-		wf[21] = new WordFrequency("Cavan", 234);
-		wf[22] = new WordFrequency("Down", 65);
-		wf[23] = new WordFrequency("Kilkenny", 45);
-		wf[24] = new WordFrequency("Laois", 345);
-		wf[25] = new WordFrequency("Derry", 7);
-		wf[26] = new WordFrequency("Longford", 8);
-		wf[27] = new WordFrequency("Louth", 34);
-		wf[28] = new WordFrequency("Monaghan", 101);
-		wf[29] = new WordFrequency("Tyrone", 121);
-		wf[30] = new WordFrequency("Wexford", 144);
-		wf[31] = new WordFrequency("Cork", 522);
-		return wf;
-	}
 
 	private String encodeToString(BufferedImage image) {
 	    String s = null;

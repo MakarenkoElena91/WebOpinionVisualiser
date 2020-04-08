@@ -11,18 +11,14 @@ public class IgnoreWordsParser {
     public static TreeSet<String> getIgnoreWords() {
         TreeSet<String> ignorewords = new TreeSet<>();
         try {
-            ignorewords = new TreeSet<>();
+            // ignorewords = new TreeSet<>();
             File dir = new File("ignorewords.txt");
 
             BufferedReader br = new BufferedReader(new InputStreamReader(
                     new FileInputStream(dir)));
             String line;
             while ((line = br.readLine()) != null) {
-                String[] ignorewordsArray = line
-                        .split(",\\s+|\\s*\\\"\\s*|\\s+|\\.\\s*|\\s*\\:\\s*");
-                for (String word : ignorewordsArray) {
-                    ignorewords.add(word.toLowerCase());
-                }
+                ignorewords.add(line.trim().toLowerCase());
             }
             //System.out.println(ignorewords);
 
@@ -30,7 +26,9 @@ public class IgnoreWordsParser {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        //System.out.println("Ignore words was added.");
         return ignorewords;
     }
+    //add method which checks to ignore word or not
 
 }
