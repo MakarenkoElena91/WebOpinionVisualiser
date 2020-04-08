@@ -59,10 +59,14 @@ public class NodeParser implements Runnable {
                 if (link != null && closed.size() <= MAX && !closed.contains(link)) {
                     if (link.contains(this.searchTerm)) {
                         try {
-                            closed.add(link);
+
                             Document child = Jsoup.connect(link).get();
                             int score = getHeuristicScore(child);
-                            queue.offer(new DocumentNode(child, score));
+                            if (score > 60) {
+                                index(child.body().text());
+                                closed.add(link);
+                                queue.offer(new DocumentNode(child, score));
+                            }
                         } catch (IOException ex) {
                         }
                     }
@@ -94,9 +98,6 @@ public class NodeParser implements Runnable {
         score = FuzzyLogic.getScore(titleScore, headingScore, bodyScore);
         //System.out.println("Score " + score);
 
-        if (score > 60) {
-            index(title, h1, body);
-        }
         return score;
     }
 
@@ -110,8 +111,10 @@ public class NodeParser implements Runnable {
         for (int i = 0; i < text.length; i++) {
             allTexts = allTexts.concat(text[i]);
         }
-        wordFrequencyCounter.getFrequencyMap(allTexts);
-        WordFrequency[] wordCounts = wordFrequencyCounter.getSortedFrequencyMap();
+        WordFrequency[] wordCounts =  wordFrequencyCounter.getFrequencyMap(allTexts);
+        for (int i = 0; i < wordCounts.length; i++) {
+            System.out.println("in NodeParse  "+wordCounts[i] + " ");
+        }
         return wordCounts;
     }
 }
