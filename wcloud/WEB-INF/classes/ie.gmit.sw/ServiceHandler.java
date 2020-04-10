@@ -40,112 +40,112 @@ import ie.gmit.sw.ai.cloud.WordFrequency;
  * IGNORE_WORDS_FILE_LOCATION mapping in web.xml. This works perfectly, so don't change it unless you know what
  * you are doing...
  *
-*/
+ */
 
 public class ServiceHandler extends HttpServlet {
-	private String ignoreWords = null;
-	private String fuzzyLogic = null;
+    private String ignoreWords = null;
+    private String fuzzyLogic = null;
 
-	private File ignoreWordsFile;
-	private File fuzzyLogicFile;
+    private File ignoreWordsFile;
+    private File fuzzyLogicFile;
 
-	public void init() throws ServletException {
-		ServletContext ctx = getServletContext(); //Get a handle on the application context
+    public void init() throws ServletException {
+        ServletContext ctx = getServletContext(); //Get a handle on the application context
+        //Reads the value from the <context-param> in web.xml
+        ignoreWords = getServletContext().getRealPath(File.separator) + ctx.getInitParameter("IGNORE_WORDS_FILE_LOCATION");
+        ignoreWordsFile = new File(ignoreWords); //A file wrapper around the ignore words...
 
-		//Reads the value from the <context-param> in web.xml
-		ignoreWords = getServletContext().getRealPath(File.separator) + ctx.getInitParameter("IGNORE_WORDS_FILE_LOCATION");
-		ignoreWordsFile = new File(ignoreWords); //A file wrapper around the ignore words...
-
-		fuzzyLogic = getServletContext().getRealPath(File.separator) + ctx.getInitParameter("FUZZY_FILE_LOCATION");
+        fuzzyLogic = getServletContext().getRealPath(File.separator) + ctx.getInitParameter("FUZZY_FILE_LOCATION");
         fuzzyLogicFile = new File(fuzzyLogic);
-	}
+    }
 
-	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		resp.setContentType("text/html"); //Output the MIME type
-		PrintWriter out = resp.getWriter(); //Write out text. We can write out binary too and change the MIME type...
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setContentType("text/html"); //Output the MIME type
+        PrintWriter out = resp.getWriter(); //Write out text. We can write out binary too and change the MIME type...
 
-		//Initialise some request varuables with the submitted form info. These are local to this method and thread safe...
-		String option = req.getParameter("cmbOptions"); //Change options to whatever you think adds value to your assignment...
-		String s = req.getParameter("query");
-		WordCloudApp wordCloudApp = new WordCloudApp(s);
+        //Initialise some request varuables with the submitted form info. These are local to this method and thread safe...
+        String option = req.getParameter("cmbOptions"); //Change options to whatever you think adds value to your assignment...
+        String s = req.getParameter("query");
+        WordCloudApp wordCloudApp = new WordCloudApp(s);
 
-		out.print("<html><head><title>Artificial Intelligence Assignment</title>");
-		out.print("<link rel=\"stylesheet\" href=\"includes/style.css\">");
+        out.print("<html><head><title>Artificial Intelligence Assignment</title>");
+        out.print("<link rel=\"stylesheet\" href=\"includes/style.css\">");
 
-		out.print("</head>");
-		out.print("<body>");
-		out.print("<div style=\"font-size:48pt; font-family:arial; color:#990000; font-weight:bold\">Web Opinion Visualiser</div>");
+        out.print("</head>");
+        out.print("<body>");
+        out.print("<div style=\"font-size:48pt; font-family:arial; color:#990000; font-weight:bold\">Web Opinion Visualiser</div>");
 
-		out.print("<p><h2>Please read the following carefully</h2>");
-		out.print("<p>The &quot;ignore words&quot; file is located at <font color=red><b>" + ignoreWordsFile.getAbsolutePath() + "</b></font> and is <b><u>" + ignoreWordsFile.length() + "</u></b> bytes in size.");
-		out.print("<p>The &quot;fuzzy logic&quot; file is located at <font color=red><b>" + fuzzyLogicFile.getAbsolutePath() + "</b></font> and is <b><u>" + fuzzyLogicFile.length() + "</u></b> bytes in size.");
-		out.print("You must place any additional files in the <b>res</b> directory and access them in the same way as the set of ignore words.");
-		out.print("<p>Place any additional JAR archives in the WEB-INF/lib directory. This will result in Tomcat adding the library of classes ");
-		out.print("to the CLASSPATH for the web application context. Please note that the JAR archives <b>jFuzzyLogic.jar</b>, <b>encog-core-3.4.jar</b> and ");
-		out.print("<b>jsoup-1.12.1.jar</b> have already been added to the project.");
-		out.print("<p><fieldset><legend><h3>Result</h3></legend>");
+        out.print("<p><h2>Please read the following carefully</h2>");
+        out.print("<p>The &quot;ignore words&quot; file is located at <font color=red><b>" + ignoreWordsFile.getAbsolutePath() + "</b></font> and is <b><u>" + ignoreWordsFile.length() + "</u></b> bytes in size.");
+        out.print("<p>The &quot;fuzzy logic&quot; file is located at <font color=red><b>" + fuzzyLogicFile.getAbsolutePath() + "</b></font> and is <b><u>" + fuzzyLogicFile.length() + "</u></b> bytes in size.");
+        out.print("You must place any additional files in the <b>res</b> directory and access them in the same way as the set of ignore words.");
+        out.print("<p>Place any additional JAR archives in the WEB-INF/lib directory. This will result in Tomcat adding the library of classes ");
+        out.print("to the CLASSPATH for the web application context. Please note that the JAR archives <b>jFuzzyLogic.jar</b>, <b>encog-core-3.4.jar</b> and ");
+        out.print("<b>jsoup-1.12.1.jar</b> have already been added to the project.");
+        out.print("<p><fieldset><legend><h3>Result</h3></legend>");
 
-		WordFrequency[] words = null;
-		//Spira Mirabilis
-		LogarithmicSpiralPlacer placer = new LogarithmicSpiralPlacer(800, 600);
-		//Place each word on the canvas starting with the largest
-		try {
-			if (words != null) {
-				Arrays.stream(wordCloudApp.createWordCloud()).forEach(placer::place);
-			}
-			else {
-				out.print("<h2>Word Cloud cannot be created for: " + s + ". </h2>");
-			}
-		out.print("<p> BufferedImage </p>");
-		BufferedImage cloud = placer.getImage(); //Get a handle on the word cloud graphic
-		String encoded = encodeToString(cloud);
-		System.out.println(encoded);
-		out.print("<p> encoded: "+ encoded +"</p>");
-		out.print("<img src=\"data:image/png;base64," + encoded + "\" alt=\"Word Cloud\">");
+        LogarithmicSpiralPlacer placer = new LogarithmicSpiralPlacer(800, 600);
+        WordFrequency[] words;
 
-		out.print("</fieldset>");
-		out.print("<P>Maybe output some search stats here, e.g. max search depth, effective branching factor.....<p>");
-		out.print("<a href=\"./\">Return to Start Page</a>");
-		out.print("</body>");
-		out.print("</html>");
-		}catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
+        try {
+            words = wordCloudApp.createWordCloud();
 
-	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		doGet(req, resp);
- 	}
+            if (words != null) {
+                Arrays.stream(words).forEach(placer::place);
+                BufferedImage cloud = placer.getImage(); //Get a handle on the word cloud graphic
+                String encoded = encodeToString(cloud);
+                System.out.println(encoded);
 
-	private String encodeToString(BufferedImage image) {
-	    String s = null;
-	    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                out.print("<img src=\"data:image/png;base64," + encodeToString(cloud) + "\" alt=\"Word Cloud\">");
+                out.print("</fieldset>");
+                out.print("<P>Maybe output some search stats here, e.g. max search depth, effective branching factor.....<p>");
+                out.print("<a href=\"./\">Return to Start Page</a>");
+                out.print("</body>");
+                out.print("</html>");
+            } else {
+                out.print("<h2>Word Cloud cannot be created for: " + s + ". </h2>");
+                out.print("<a href=\"./\">Return to Start Page</a>");
+                out.print("</body>");
+                out.print("</html>");
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
-	    try {
-	        ImageIO.write(image, "png", bos);
-	        byte[] bytes = bos.toByteArray();
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
 
-	        Base64.Encoder encoder = Base64.getEncoder();
-	        s = encoder.encodeToString(bytes);
-	        bos.close();
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    }
-	    return s;
-	}
+    private String encodeToString(BufferedImage image) {
+        String s = null;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
-	private BufferedImage decodeToImage(String imageString) {
-	    BufferedImage image = null;
-	    byte[] bytes;
-	    try {
-	        Base64.Decoder decoder = Base64.getDecoder();
-	        bytes = decoder.decode(imageString);
-	        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-	        image = ImageIO.read(bis);
-	        bis.close();
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	    return image;
-	}
+        try {
+            ImageIO.write(image, "png", bos);
+            byte[] bytes = bos.toByteArray();
+
+            Base64.Encoder encoder = Base64.getEncoder();
+            s = encoder.encodeToString(bytes);
+            bos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return s;
+    }
+
+    private BufferedImage decodeToImage(String imageString) {
+        BufferedImage image = null;
+        byte[] bytes;
+        try {
+            Base64.Decoder decoder = Base64.getDecoder();
+            bytes = decoder.decode(imageString);
+            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+            image = ImageIO.read(bis);
+            bis.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return image;
+    }
 }

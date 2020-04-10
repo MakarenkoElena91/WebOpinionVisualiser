@@ -25,7 +25,7 @@ public class WordCloudApp {
 
     public WordFrequency[] createWordCloud() throws IOException, InterruptedException {
         Search search = new Search();
-        WordFrequency[] words = new WordFrequency[0];
+        WordFrequency[] words;
 //        IgnoreWordsParser ignoreWordsParser = IgnoreWordsParser.getInstance();
         Set<String> links = search.getSearchResults(query);
 
@@ -45,6 +45,7 @@ public class WordCloudApp {
         }
         words = wordFrequencyCounter.getFrequency();
         words = new WeightedFont().getFontSizes(words);
+        Arrays.sort(words, Comparator.comparing(WordFrequency::getFrequency, Comparator.reverseOrder()));
         return words;
     }
 
@@ -69,22 +70,22 @@ public class WordCloudApp {
         Arrays.stream(words).forEach(System.out::println);
         //words = new WeightedFont().getFontSizes(words);
 
-       // Arrays.sort(words, Comparator.comparing(WordFrequency::getFrequency, Comparator.reverseOrder()));
+//        Arrays.sort(words, Comparator.comparing(WordFrequency::getFrequency, Comparator.reverseOrder()));
+//
+//        //Spira Mirabilis
+//        LogarithmicSpiralPlacer placer = new LogarithmicSpiralPlacer(1000, 800);
+//        for (WordFrequency word : words) {
+//            placer.place(word); //Place each word on the canvas starting with the largest
+//        }
+//
+//        BufferedImage cloud = placer.getImage();
+//        File outputfile = new File("data/cloud.png");
+//        try {
+//            ImageIO.write(cloud, "png", outputfile);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
-        //Spira Mirabilis
-        LogarithmicSpiralPlacer placer = new LogarithmicSpiralPlacer(1000, 800);
-        for (WordFrequency word : words) {
-            placer.place(word); //Place each word on the canvas starting with the largest
-        }
-
-        BufferedImage cloud = placer.getImage();
-        File outputfile = new File("data/cloud.png");
-        try {
-            ImageIO.write(cloud, "png", outputfile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Arrays.sort(words, Comparator.comparing(WordFrequency::getFrequency, Comparator.reverseOrder()));
+//        Arrays.sort(words, Comparator.comparing(WordFrequency::getFrequency, Comparator.reverseOrder()));
     }
 }
