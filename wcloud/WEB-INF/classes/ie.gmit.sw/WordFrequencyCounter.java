@@ -11,12 +11,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WordFrequencyCounter {
-    private static final int MAX_LIMIT = 10;
+    private static final int MAX_LIMIT = 32;
     private static Map<String, Integer> wordFrequencyMap = new ConcurrentHashMap<>();
     private static WordFrequency[] wordCounts = new WordFrequency[MAX_LIMIT];
     private static WordFrequencyCounter instance = new WordFrequencyCounter();
     int numberOfMaps = 0;
-//    private String text;
 
     private WordFrequencyCounter() {
     }
@@ -26,7 +25,6 @@ public class WordFrequencyCounter {
     }
     public void add(String text) throws IOException {
         String[] wordsToIgnore = IgnoreWordsParser.getIgnoreWords().toArray(new String[0]);
-        // int count;
         // read text from the website
         BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(text.toLowerCase().getBytes(StandardCharsets.UTF_8))));
         String line;
@@ -54,19 +52,17 @@ public class WordFrequencyCounter {
             }
         }
         numberOfMaps++;
-        System.out.println("Pages checked: "+ numberOfMaps);
+        //System.out.println("Pages checked: "+ numberOfMaps);
         reader.close();
 
-        // TODO: prune wordFrequencyMap
-//         var entries = wordFrequencyMap.entrySet();
+        // prune wordFrequencyMap
          List<Map.Entry<String, Integer>> list  = new LinkedList<>(wordFrequencyMap.entrySet());
-         Collections.sort(list, (f, s) -> s.getValue() -f.getValue());
-        //sy
+         Collections.sort(list, (f, s) -> s.getValue() - f.getValue());
+
          list.stream()
-                 .skip(300)
+                 .skip(100)
                  .map(Map.Entry::getKey)
                  .forEach(wordFrequencyMap::remove);
-//        wordFrequencyMap.remove()
     }
 
     public WordFrequency[] getFrequency(){
@@ -80,7 +76,7 @@ public class WordFrequencyCounter {
 
         for (int i = 0; i < wordCounts.length; i++) {
             wordCounts[i] = wordCountArrayList.get(i);
-//           System.out.println(wordCounts[i] + " ");
+           //System.out.println(wordCounts[i] + " ");
         }
         return wordCounts;
     }

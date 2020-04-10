@@ -8,11 +8,20 @@ import java.io.InputStreamReader;
 import java.util.TreeSet;
 
 public class IgnoreWordsParser {
+    private static String fileName = "ignoreWords.txt";
+    private static IgnoreWordsParser instance = new IgnoreWordsParser();
+
+    private IgnoreWordsParser() {
+    }
+
+    public static IgnoreWordsParser getInstance(){
+        return instance;
+    }
+
     public static TreeSet<String> getIgnoreWords() {
         TreeSet<String> ignorewords = new TreeSet<>();
         try {
-            // ignorewords = new TreeSet<>();
-            File dir = new File("ignorewords.txt");
+            File dir = new File(fileName);
 
             BufferedReader br = new BufferedReader(new InputStreamReader(
                     new FileInputStream(dir)));
@@ -22,13 +31,11 @@ public class IgnoreWordsParser {
             }
             //System.out.println(ignorewords);
 
-            //call uniqueSortedWords.toArray() to have output in an array
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //System.out.println("Ignore words was added.");
+       // System.out.println("Ignore words were added.");
         return ignorewords;
     }
     //add method which checks to ignore word or not
-
 }
