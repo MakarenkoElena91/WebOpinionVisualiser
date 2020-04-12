@@ -11,13 +11,8 @@ import javax.imageio.ImageIO;
 
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Comparator;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import ie.gmit.sw.ai.cloud.LogarithmicSpiralPlacer;
-import ie.gmit.sw.ai.cloud.WeightedFont;
 import ie.gmit.sw.ai.cloud.WordFrequency;
 
 /*
@@ -86,15 +81,14 @@ public class ServiceHandler extends HttpServlet {
 
         LogarithmicSpiralPlacer placer = new LogarithmicSpiralPlacer(800, 600);
         WordFrequency[] words;
-
+        WordFrequencyCounter wordFrequencyCounter = WordFrequencyCounter.getInstance();
         try {
             words = wordCloudApp.createWordCloud();
 
             if (words != null) {
                 Arrays.stream(words).forEach(placer::place);
                 BufferedImage cloud = placer.getImage(); //Get a handle on the word cloud graphic
-                String encoded = encodeToString(cloud);
-                System.out.println(encoded);
+                encodeToString(cloud);
 
                 out.print("<img src=\"data:image/png;base64," + encodeToString(cloud) + "\" alt=\"Word Cloud\">");
                 out.print("</fieldset>");
@@ -102,7 +96,11 @@ public class ServiceHandler extends HttpServlet {
                 out.print("<a href=\"./\">Return to Start Page</a>");
                 out.print("</body>");
                 out.print("</html>");
-            } else {
+
+                wordFrequencyCounter.removeWords();
+                wordCloudApp.removeWords();
+            }
+            else {
                 out.print("<h2>Word Cloud cannot be created for: " + s + ". </h2>");
                 out.print("<a href=\"./\">Return to Start Page</a>");
                 out.print("</body>");

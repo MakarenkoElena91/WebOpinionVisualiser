@@ -29,12 +29,15 @@ public class NodeParser implements Callable<WordFrequency[]> {
         this.url = url;
     }
 
+    /**
+     * each 'thread' works with its duckduckgo link
+     * @return
+     */
     @Override
     public WordFrequency[] call() {
-        // duckduckgo links
+
         Document doc;
         int score;
-
         try {
             doc = Jsoup.connect(url)
                     .timeout(50000)
@@ -52,6 +55,10 @@ public class NodeParser implements Callable<WordFrequency[]> {
         return wordFrequencyCounter.getFrequency();
     }
 
+    /**
+     * Greedy Best First
+     * expands node if score greater than 20
+     */
     public void process() {
         int searchCounter = 0;
         while (!queue.isEmpty() && closed.size() <= MAX_LINKS_FROM_DOCUMENT) {
@@ -74,20 +81,23 @@ public class NodeParser implements Callable<WordFrequency[]> {
                             //queue.offer(new DocumentNode(child, score));
                         }
                     } catch (IOException | IllegalArgumentException ex) {
-                        System.err.println("Failed to open the link: " + ex.getMessage() + " - " + link);
+                        System.err.println("Failed to open link: " + ex.getMessage() + " - " + link);
                     }
                 }
                 searchCounter++;
-                if (searchCounter >= 100) {
+                if (searchCounter > 100) {
                     break;
                 }
-
             }
         }
-       // System.out.println("# of links counter2 & searchCounter " + counter2 + " " + searchCounter);
     }
 
-    //gets the 'best' links according to heuristic score
+    /**
+     * gets the 'best' links according to heuristic score
+     * @param doc html page
+     * @return score calculated based on fuzzy logic
+     * @throws IOException
+     */
     private int getHeuristicScore(Document doc) throws IOException {
         int score;
         String title = doc.title();
@@ -113,7 +123,12 @@ public class NodeParser implements Callable<WordFrequency[]> {
         return score;
     }
 
-    //counts how many times the search term appears on the page (either in title, or heading or body)
+    /**
+     * counts how many times the search term appears on the page (either in title, or heading or body)
+     * @param s - word frequency of which needs to be calculated
+     * @param target - text where that word needs to be found
+     * @return frequency of occurrence of specified word in specified text
+     */
     public int getFrequency(String s, String target) {
         return (int) Arrays.stream(s.split("[ ,\\.]")).filter(e -> e.equals(target)).count();
     }

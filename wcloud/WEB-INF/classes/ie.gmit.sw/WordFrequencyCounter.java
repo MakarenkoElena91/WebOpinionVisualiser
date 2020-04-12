@@ -23,9 +23,15 @@ public class WordFrequencyCounter {
     public static WordFrequencyCounter getInstance(){
         return instance;
     }
+
+    /**
+     * reads text from each website and counts frequency of each word, sorts it, keeps just the first 100 of the most
+     * frequent ones
+     * @param text - text from a website (for now just body)
+     * @throws IOException
+     */
     public void add(String text) throws IOException {
         String[] wordsToIgnore = IgnoreWordsParser.getIgnoreWords().toArray(new String[0]);
-        // read text from the website
         BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(text.toLowerCase().getBytes(StandardCharsets.UTF_8))));
         String line;
 
@@ -52,7 +58,7 @@ public class WordFrequencyCounter {
             }
         }
         numberOfMaps++;
-        //System.out.println("Pages checked: "+ numberOfMaps);
+        System.out.println("Pages checked: "+ numberOfMaps);
         reader.close();
 
         // prune wordFrequencyMap
@@ -65,6 +71,10 @@ public class WordFrequencyCounter {
                  .forEach(wordFrequencyMap::remove);
     }
 
+    /**
+     * Converts map to WordFrequency[], each object in an array contains Word and its Frequency
+     * @return WordFrequency[]
+     */
     public WordFrequency[] getFrequency(){
         // wordFrequencyMap.forEach((K, V) -> System.out.println(K + " " + V));
         List<WordFrequency> wordCountArrayList = new ArrayList<>();
@@ -79,6 +89,13 @@ public class WordFrequencyCounter {
            //System.out.println(wordCounts[i] + " ");
         }
         return wordCounts;
+    }
+
+    /**
+     * Clears wordFrequencyMap, required for the next search
+     */
+    public void removeWords() {
+        wordFrequencyMap.clear();
     }
 }
 

@@ -18,6 +18,7 @@ public class WordCloudApp {
     private String query;
     private ExecutorService executorService = Executors.newWorkStealingPool();
     private List<Future<WordFrequency[]>> jobList = new LinkedList<>();
+    WordFrequency[] words;
 
     public WordCloudApp(String query) {
         this.query = query;
@@ -25,7 +26,7 @@ public class WordCloudApp {
 
     public WordFrequency[] createWordCloud() throws IOException, InterruptedException {
         Search search = new Search();
-        WordFrequency[] words;
+
 //        IgnoreWordsParser ignoreWordsParser = IgnoreWordsParser.getInstance();
         Set<String> links = search.getSearchResults(query);
 
@@ -57,7 +58,10 @@ public class WordCloudApp {
         }
         return false;
     }
-
+    public WordFrequency[] removeWords() {
+        words = new WordFrequency[0];
+        return words;
+    }
     public static void main(String[] args)  {
         String query = args[0];
         WordCloudApp app = new WordCloudApp(query);
@@ -68,24 +72,24 @@ public class WordCloudApp {
             e.printStackTrace();
         }
         Arrays.stream(words).forEach(System.out::println);
-        //words = new WeightedFont().getFontSizes(words);
+        words = new WeightedFont().getFontSizes(words);
 
-//        Arrays.sort(words, Comparator.comparing(WordFrequency::getFrequency, Comparator.reverseOrder()));
-//
-//        //Spira Mirabilis
-//        LogarithmicSpiralPlacer placer = new LogarithmicSpiralPlacer(1000, 800);
-//        for (WordFrequency word : words) {
-//            placer.place(word); //Place each word on the canvas starting with the largest
-//        }
-//
-//        BufferedImage cloud = placer.getImage();
-//        File outputfile = new File("data/cloud.png");
-//        try {
-//            ImageIO.write(cloud, "png", outputfile);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        Arrays.sort(words, Comparator.comparing(WordFrequency::getFrequency, Comparator.reverseOrder()));
 
-//        Arrays.sort(words, Comparator.comparing(WordFrequency::getFrequency, Comparator.reverseOrder()));
+        //Spira Mirabilis
+        LogarithmicSpiralPlacer placer = new LogarithmicSpiralPlacer(1000, 800);
+        for (WordFrequency word : words) {
+            placer.place(word); //Place each word on the canvas starting with the largest
+        }
+
+        BufferedImage cloud = placer.getImage();
+        File outputfile = new File("res/cloud.png");
+        try {
+            ImageIO.write(cloud, "png", outputfile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Arrays.sort(words, Comparator.comparing(WordFrequency::getFrequency, Comparator.reverseOrder()));
     }
 }

@@ -15,6 +15,11 @@ public class Search {
     private final static int MAX_LIMIT = 50;
     private Set<String> links = new ConcurrentSkipListSet<>();
 
+    /**
+     * for testing: hardcoded links for search term Galway, in order not to send requests to duckduckgo
+     * @param query - 'Galway'
+     * @return a set of 'Galway' links
+     */
     public Set<String> hardcoded(String query) {
         links.add("https://en.wikipedia.org/wiki/Galway");
         links.add("https://www.tripadvisor.com/Attractions-g186609-Activities-Galway_County_Galway_Western_Ireland.html");
@@ -43,6 +48,12 @@ public class Search {
         return links;
     }
 
+    /**
+     * gets links returned by duckduckgo search
+     * @param query - a search term, word cloud is based on
+     * @return a set of links
+     * @throws IOException
+     */
     public Set<String> getSearchResults(String query) throws IOException {
         Document doc;
         try {

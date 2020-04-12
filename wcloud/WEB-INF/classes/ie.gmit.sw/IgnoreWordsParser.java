@@ -8,16 +8,12 @@ import java.io.InputStreamReader;
 import java.util.TreeSet;
 
 public class IgnoreWordsParser {
-    private static String fileName = "ignoreWords.txt";
-    private static IgnoreWordsParser instance = new IgnoreWordsParser();
+    private static String fileName = "res/ignoreWords.txt";
 
-    private IgnoreWordsParser() {
-    }
-
-    public static IgnoreWordsParser getInstance(){
-        return instance;
-    }
-
+    /**
+     * reads ignorewords.txt file and populates a TreeSet from that file
+     * @return set of words to ignore
+     */
     public static TreeSet<String> getIgnoreWords() {
         TreeSet<String> ignorewords = new TreeSet<>();
         try {
