@@ -1,0 +1,64 @@
+FUNCTION_BLOCK score
+
+	// Define input variables
+	VAR_INPUT
+		title : REAL;
+		heading : REAL;
+		body : REAL;
+	END_VAR
+
+	// Define output variable
+	VAR_OUTPUT
+		score : REAL;
+	END_VAR
+//title is significant if search term appears in title at least once
+	FUZZIFY title
+	 TERM significant := (50, 0) (200, 1);
+	 TERM insignificant := (0, 1) (40, 0);
+	END_FUZZIFY
+//heading is relevant if search term appears in heading at least twice
+	FUZZIFY heading
+	 TERM relevant := (20, 0) (100, 1);
+	 TERM irrelevant := (0, 1) (10, 0);
+	END_FUZZIFY
+//search term needs to appear in body around at least 15-20 times 'to bump up' the score
+    FUZZIFY body
+     TERM rare := (0, 1) (5, 0);
+     TERM average :=  (4, 0) (15, 1) (20, 0);
+	 TERM frequent :=  (15, 0) (100, 1);
+	END_FUZZIFY
+
+//Center of Gravity singleton
+	DEFUZZIFY score
+	 TERM low := 10;
+     TERM average := 50;
+     TERM high := 100;
+     METHOD : COGS;
+	 DEFAULT := 0;
+	END_DEFUZZIFY
+
+
+	 RULEBLOCK No1
+	 AND : MIN;
+	 ACT : MIN;
+	 ACCU : MAX;
+
+	 RULE 1 : IF title IS significant AND heading IS relevant OR body IS frequent THEN score IS high;
+	 RULE 2 : IF title IS significant AND heading IS relevant OR body IS average THEN score IS average;
+     RULE 3 : IF title IS significant AND heading IS relevant OR body IS rare THEN score IS average;
+
+	 RULE 4 : IF title IS insignificant OR heading IS irrelevant OR body IS rare THEN score IS low;
+	 RULE 5 : IF title IS insignificant OR heading IS irrelevant AND body IS average THEN score IS low;
+	 RULE 6 : IF title IS insignificant OR heading IS irrelevant AND body IS frequent THEN score IS average;
+
+	 RULE 7 : IF title IS insignificant AND heading IS relevant AND body IS average THEN score IS low;
+	 RULE 8 : IF title IS insignificant AND heading IS relevant AND body IS rare THEN score IS low;
+	 RULE 9 : IF title IS insignificant AND heading IS relevant AND body IS frequent THEN score IS average;
+
+     RULE 10 : IF title IS significant OR heading IS irrelevant AND body IS average THEN score IS average;
+	 RULE 11 : IF title IS significant AND heading IS irrelevant AND body IS rare THEN score IS low;
+	 RULE 12 : IF title IS significant AND heading IS irrelevant AND body IS frequent THEN score IS average;
+
+	END_RULEBLOCK
+
+END_FUNCTION_BLOCK

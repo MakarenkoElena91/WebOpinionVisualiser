@@ -11,23 +11,24 @@ FUNCTION_BLOCK score
 	VAR_OUTPUT
 		score : REAL;
 	END_VAR
-
+//title is significant if search term appears in title at least once
 	FUZZIFY title
 	 TERM significant := (50, 0) (200, 1);
 	 TERM insignificant := (0, 1) (40, 0);
 	END_FUZZIFY
-
+//heading is relevant if search term appears in heading at least twice
 	FUZZIFY heading
 	 TERM relevant := (20, 0) (100, 1);
 	 TERM irrelevant := (0, 1) (10, 0);
 	END_FUZZIFY
-
+//search term needs to appear in body around at least 15-20 times 'to bump up' the score
     FUZZIFY body
-     TERM rare := (0, 1) (70, 0);
-     TERM average :=  (60, 0) (70, 1) (100, 0);
-	 TERM frequent :=  (90, 0) (500, 1);
+     TERM rare := (0, 1) (5, 0);
+     TERM average :=  (4, 0) (15, 1) (20, 0);
+	 TERM frequent :=  (15, 0) (100, 1);
 	END_FUZZIFY
 
+//Center of Gravity singleton
 	DEFUZZIFY score
 	 TERM low := 10;
      TERM average := 50;

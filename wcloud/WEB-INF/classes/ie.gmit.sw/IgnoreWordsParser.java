@@ -8,8 +8,7 @@ import java.io.InputStreamReader;
 import java.util.TreeSet;
 
 public class IgnoreWordsParser {
-    private static String fileName = "res/ignoreWords.txt";
-
+    private static String fileName = "../webapps/wcloud/res/ignoreWords.txt";
     /**
      * reads ignorewords.txt file and populates a TreeSet from that file
      * @return set of words to ignore
@@ -30,8 +29,7 @@ public class IgnoreWordsParser {
         } catch (Exception e) {
             e.printStackTrace();
         }
-       // System.out.println("Ignore words were added.");
         return ignorewords;
     }
-    //add method which checks to ignore word or not
+
 }

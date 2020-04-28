@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WordFrequencyCounter {
-    private static final int MAX_LIMIT = 32;
+    private static final int MAX_LIMIT = 20;
     private static Map<String, Integer> wordFrequencyMap = new ConcurrentHashMap<>();
     private static WordFrequency[] wordCounts = new WordFrequency[MAX_LIMIT];
     private static WordFrequencyCounter instance = new WordFrequencyCounter();
@@ -26,13 +26,14 @@ public class WordFrequencyCounter {
 
     /**
      * reads text from each website and counts frequency of each word, sorts it, keeps just the first 100 of the most
-     * frequent ones
+     * frequent ones, ignores all words < 4 letters long and containing in ignorewords.txt file
      * @param text - text from a website (for now just body)
      * @throws IOException
      */
     public void add(String text) throws IOException {
         String[] wordsToIgnore = IgnoreWordsParser.getIgnoreWords().toArray(new String[0]);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(text.toLowerCase().getBytes(StandardCharsets.UTF_8))));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(text.toLowerCase()
+                .getBytes(StandardCharsets.UTF_8))));
         String line;
 
         while ((line = reader.readLine()) != null) {
@@ -46,6 +47,9 @@ public class WordFrequencyCounter {
                     //do nothing
                 } else {
                     synchronized (wordFrequencyMap) {
+                        //if word ends in 'es' it is most likely either plural nouns or verbs in the third person singular
+                        //replace it with 'e', in order not to display similar words, e.g. language and languages
+                        word = word.replaceAll("es$","e");
                         if (wordFrequencyMap.containsKey(word)) {
                             int count = wordFrequencyMap.get(word);
                             count++;
@@ -58,7 +62,7 @@ public class WordFrequencyCounter {
             }
         }
         numberOfMaps++;
-        System.out.println("Pages checked: "+ numberOfMaps);
+        System.out.println("Total number of nodes visited: "+ numberOfMaps);
         reader.close();
 
         // prune wordFrequencyMap
@@ -90,7 +94,6 @@ public class WordFrequencyCounter {
         }
         return wordCounts;
     }
-
     /**
      * Clears wordFrequencyMap, required for the next search
      */

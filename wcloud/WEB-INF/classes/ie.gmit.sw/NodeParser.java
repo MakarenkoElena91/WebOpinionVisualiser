@@ -12,11 +12,11 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 public class NodeParser implements Callable<WordFrequency[]> {
-    private static final int MAX_LINKS_FROM_DOCUMENT = 10;//100
+    private static final int MAX_NUMBER_OF_LINKS = 10;
     private static final int TITLE_WEIGHT = 50;//<title>
     private static final int HEADING_WEIGHT = 20;//h1
     private static final int PARAGRAPH_WEIGHT = 1;//body
-    int counter2 = 0;
+    int linksCounter = 0;
     private String searchTerm;
     private String url;
 
@@ -24,18 +24,38 @@ public class NodeParser implements Callable<WordFrequency[]> {
     private Queue<DocumentNode> queue = new PriorityQueue<>(Comparator.comparing(DocumentNode::getScore));//sort this queue
     WordFrequencyCounter wordFrequencyCounter = WordFrequencyCounter.getInstance();
 
+    private double effectivebranchingFactor;
+    private int maxSearchDepth = 0;
+
+    public double getEffectivebranchingFactor() {
+        System.out.println("branchingFactor in get "+ effectivebranchingFactor);
+        return effectivebranchingFactor;
+
+    }
+
+    public int getMaxSearchDepth() {
+        return maxSearchDepth;
+    }
+
+    public void setEffectivebranchingFactor(double effectivebranchingFactor) {
+        this.effectivebranchingFactor = effectivebranchingFactor;
+    }
+
+    public void setMaxSearchDepth(int maxSearchDepth) {
+        this.maxSearchDepth = maxSearchDepth;
+    }
+
     public NodeParser(String url, String searchTerm) {
         this.searchTerm = searchTerm;
         this.url = url;
     }
 
     /**
-     * each 'thread' works with its duckduckgo link
+     * each 'thread' works with its duckduckgo link (expands its children)
      * @return
      */
     @Override
     public WordFrequency[] call() {
-
         Document doc;
         int score;
         try {
@@ -47,49 +67,52 @@ public class NodeParser implements Callable<WordFrequency[]> {
             closed.add(url);
             queue.offer(new DocumentNode(doc, score));
             process();
-            Arrays.stream(closed.toArray()).forEach(System.out::println);
+            //Arrays.stream(closed.toArray()).forEach(System.out::println);
         } catch (IOException e) {
             System.err.println("JSoup couldn't connect: " + e.getMessage());
             e.printStackTrace();
         }
+
         return wordFrequencyCounter.getFrequency();
     }
 
     /**
      * Greedy Best First
-     * expands node if score greater than 20
+     * Performance of the algorithm depends on how well the cost function is designed (fuzzy logic).
+     * expands node if score is greater than 20
      */
     public void process() {
-        int searchCounter = 0;
-        while (!queue.isEmpty() && closed.size() <= MAX_LINKS_FROM_DOCUMENT) {
+        while (!queue.isEmpty() && closed.size() <= MAX_NUMBER_OF_LINKS) {
             DocumentNode node = queue.poll();
             Document doc = node.getDocument();
             Elements edges = doc.select("a[href]");
+            maxSearchDepth++;
             for (Element e : edges) {
-                // link counter here
-                //System.out.println("# " + WordCloudApp.totalLinksCounter.incrementAndGet());
+                linksCounter = App.totalLinksCounter.incrementAndGet();
                 String link = e.absUrl("href");
-                if (link != null && closed.size() <= MAX_LINKS_FROM_DOCUMENT || !closed.contains(link) && closed.size() <= MAX_LINKS_FROM_DOCUMENT) {
+                if (link != null && closed.size() <= MAX_NUMBER_OF_LINKS && !closed.contains(link)) {
                     try {
                         Document child = Jsoup.connect(link).get();
                         int score = getHeuristicScore(child);
+
                         if (score > 20) {
                             wordFrequencyCounter.add(child.body().text());
-                            counter2++;
-                            System.out.println("link 2nd level " + link + counter2);
-                            //closed.add(link);
-                            //queue.offer(new DocumentNode(child, score));
+                            //System.out.println("Child node " + link);
+                            closed.add(link);
+                            queue.offer(new DocumentNode(child, score));
                         }
                     } catch (IOException | IllegalArgumentException ex) {
                         System.err.println("Failed to open link: " + ex.getMessage() + " - " + link);
                     }
                 }
-                searchCounter++;
-                if (searchCounter > 100) {
-                    break;
-                }
             }
         }
+        int visitedNodes = closed.size();
+        double power = 1.0/(maxSearchDepth);
+        effectivebranchingFactor = Math.pow(visitedNodes,power);
+        System.out.println("branchingFactor "+ effectivebranchingFactor);
+        System.out.println("maxSearchDepth "+ maxSearchDepth);
+        System.out.println("Number of links " + linksCounter);
     }
 
     /**

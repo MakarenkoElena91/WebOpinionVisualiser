@@ -3,6 +3,9 @@ package ie.gmit.sw;
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.FunctionBlock;
 
+import java.io.File;
+import java.io.IOException;
+
 public class FuzzyLogic {
     /**
      * get the score based on fuzzy.fcl rules
@@ -12,7 +15,7 @@ public class FuzzyLogic {
      * @return fuzzy score
      */
     public static int getScore(int title, int heading, int body) {
-        FIS fis = FIS.load("res/fuzzy.fcl", true);
+        FIS fis = FIS.load("../webapps/wcloud/res/fuzzy.fcl", true);
         FunctionBlock functionBlock = fis.getFunctionBlock("score");
 
         fis.setVariable("title", title);
@@ -23,7 +26,10 @@ public class FuzzyLogic {
         return (int) fis.getVariable("score").defuzzify();
     }
     //for testing
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         System.out.println("Fuzzy score is: " + new FuzzyLogic().getScore(100,60, 500));
+        String basePath = new File("res/fuzzy.fcl").getCanonicalPath();
+        System.out.println(basePath);
+
     }
 }

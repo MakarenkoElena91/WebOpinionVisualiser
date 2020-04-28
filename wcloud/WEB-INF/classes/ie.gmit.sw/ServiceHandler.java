@@ -61,7 +61,7 @@ public class ServiceHandler extends HttpServlet {
         //Initialise some request varuables with the submitted form info. These are local to this method and thread safe...
         String option = req.getParameter("cmbOptions"); //Change options to whatever you think adds value to your assignment...
         String s = req.getParameter("query");
-        WordCloudApp wordCloudApp = new WordCloudApp(s);
+        App app = new App(s);
 
         out.print("<html><head><title>Artificial Intelligence Assignment</title>");
         out.print("<link rel=\"stylesheet\" href=\"includes/style.css\">");
@@ -83,7 +83,7 @@ public class ServiceHandler extends HttpServlet {
         WordFrequency[] words;
         WordFrequencyCounter wordFrequencyCounter = WordFrequencyCounter.getInstance();
         try {
-            words = wordCloudApp.createWordCloud();
+            words = app.createWordCloud();
 
             if (words != null) {
                 Arrays.stream(words).forEach(placer::place);
@@ -98,7 +98,7 @@ public class ServiceHandler extends HttpServlet {
                 out.print("</html>");
 
                 wordFrequencyCounter.removeWords();
-                wordCloudApp.removeWords();
+                app.removeWords();
             }
             else {
                 out.print("<h2>Word Cloud cannot be created for: " + s + ". </h2>");
