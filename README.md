@@ -35,3 +35,12 @@ It took me 2 days to configure tomcat and trying solve this issue, I just gave u
 
 *I would like to thank Mindaugas Sarskus for helping me with Callable interface, testing program as a standalone application
  (code for saving an image is provided by him) and creating jar in Intellij Idea.*
+
+1. Callable ref: https://www.baeldung.com/java-runnable-callable
+
+Memo 
+How to create a jar file in IntellijIdea
+1. Project Structure -> Artifacts -> + -> web application: exploded from modules->  Change type to Archive -> save in apache-tomcat/webapps
+2. Build -> build artifacts
+in apache-tomcat/bin run command "startup"
+change url to http://localhost:8080/artifactName
